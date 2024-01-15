@@ -1,0 +1,101 @@
+﻿@model IEnumerable<DinhThiKimThoa_De7.Models.PhanLoai>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<DinhThiKimThoa_De7.Models.SanPham> sanPhams = ViewBag.sanpham;
+}
+
+<!-- ##### Portfolio Area Start ##### -->
+<section class="alazea-portfolio-area section-padding-100-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Section Heading -->
+                <div class="section-heading text-center">
+                    <h2>OUR PORTFOLIO</h2>
+                    <h4>Đinh Thị Kim Thỏa</h4>
+                    <p>Công nghệ thông tin K62</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="alazea-portfolio-filter">
+                    <div class="portfolio-filter">
+                        @foreach (var phanloai in Model)
+                        {
+                            <button class="btn btn-Category" data-filter=".design">@phanloai.PhanLoaiChinh</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row alazea-portfolio" id="displayProduct">
+            @foreach (var sanPham in sanPhams)
+            {
+                <div class="col-12 col-sm-6 col-lg-3 single_portfolio_item design home-design wow fadeInUp" data-wow-delay="100ms">
+                    <!-- Portfolio Thumbnail -->
+                    <div class="portfolio-thumbnail bg-img" style="background-image:url('/Content/Images QLBanChauCanh/@sanPham.AnhDaiDien');"></div>
+                    <!-- Portfolio Hover Text -->
+                    <div class="portfolio-hover-overlay">
+                        <a href="@Url.Action("Details","SanPhams", new {id=sanPham.MaSanPham})" class="portfolio-img d-flex align-items-center justify-content-center" title="Portfolio 1">
+                            <div class="port-hover-text">
+                                <h3>@sanPham.TenSanPham</h3>
+                                <h5>@sanPham.DonGiaBanNhoNhat</h5>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+
+@Scripts.Render("~/Content/js/jquery/jquery-2.2.4.min.js");
+<script>
+    $(".btn-Category").click(function () {
+        // Lấy giá trị hiển thị của phần tử được click
+        var phanLoaiValue = $(this).text();
+        var str = '';
+        $.ajax({
+            url: '@Url.Action("GetProductByCategory", "PhanLoais")',
+            dataType: "json",
+            type: "GET",
+            data: {phanLoai: phanLoaiValue },
+            success: function (data) {
+                $.each(data.sanPham, function (key, val) {
+                    var linkImage = "../Content/Images QLBanChauCanh/" + val.AnhDaiDien;
+                    var ControllerRoute = "/SanPhams/Details/" + val.MaSanPham;
+                    str += `<div class="col-12 col-sm-6 col-lg-3 single_portfolio_item design home-design wow fadeInUp" data-wow-delay="100ms">
+     <!-- Portfolio Thumbnail -->
+     <div class="portfolio-thumbnail bg-img" style="background-image:url('${linkImage}');"></div>
+     <!-- Portfolio Hover Text -->
+     <div class="portfolio-hover-overlay">
+         <a href="${ControllerRoute}" class="portfolio-img d-flex align-items-center justify-content-center" title="Portfolio 1">
+             <div class="port-hover-text">
+                 <h3>${val.TenSanPham}</h3>
+                 <h5>${val.DonGiaBanNhoNhat}</h5>
+             </div>
+         </a>
+     </div>
+ </div>`;
+                });
+                $('#displayProduct').html(str);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log('AJAX Error:', textStatus, errorThrown);
+
+                // Chi tiết lỗi từ đối tượng jqXHR
+                console.log('Status Code:', jqXHR.status);
+                console.log('Response Text:', jqXHR.responseText);
+            }
+        })
+    });
+</script>
+<!-- ##### Portfolio Area End ##### -->

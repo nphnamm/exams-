@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<demot.Models.SanPham> sanPhams = ViewBag.Sanpham;
+    List<demot.Models.PhanLoai> phanLoais = ViewBag.Phanloai;
+}
+
+<!-- New Arrivals -->
+
+<div class="new_arrivals">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <div class="section_title new_arrivals_title">
+                    <h2>New Arrivals</h2>
+                    <h4>Nguyễn Thị Thanh </h4>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col text-center">
+                <div class="new_arrivals_sorting">
+                    <ul class="arrivals_grid_sorting clearfix button-group filters-button-group">
+                        <li class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center active is-checked" data-filter="*">Tất cả sản phẩm</li>
+                        @foreach (var pl in phanLoais)
+                        {
+                            <li class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center" data-filter=".women">@pl.PhanLoaiChinh</li>
+
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="displayProduct">
+            <div class="col">
+                <div class="product-grid" data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
+
+                    <!-- Product 1 -->
+                    @foreach (var sp in sanPhams)
+                    {
+                        <div class="product-item men">
+                            <div class="product discount product_filter">
+                                <div class="product_image">
+                                    <img src="~/Content/Images QLQuanAo/@sp.AnhDaiDien" alt="">
+                                </div>
+                                <div class="favorite favorite_left"></div>
+                                <div class="product_bubble product_bubble_right product_bubble_red d-flex flex-column align-items-center"><span>-$20</span></div>
+                                <div class="product_info">
+                                    <h6 class="product_name"><a href="single.html">@sp.TenSanPham</a></h6>
+                                    <div class="product_price">@sp.GiaNhap</div>
+                                </div>
+                            </div>
+                            <div class="red_button add_to_cart_button"><a href="/SanPhams/Create">Thêm sản phẩm mới </a></div>
+                        </div>
+                    }
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Scripts.Render("~/Content/js/jquery-3.2.1.min.js")
+<script>
+    $(".grid_sorting_button").click(function () {
+        // Lấy giá trị hiển thị của phần tử được click
+        var phanLoaiValue = $(this).text();
+        var str = '';
+        $.ajax({
+            url: '@Url.Action("GetProductByCategory", "Home")',
+            dataType: "json",
+            type: "GET",
+            data: {phanLoai: phanLoaiValue },
+            success: function (data) {
+                $.each(data.sanPham, function (key, val) {
+                    var linkImage = "/Content/Images QLQuanAo/" + val.AnhDaiDien;
+                    str += `<div class="product-item men">
+                        <div class="product discount product_filter">
+                            <div class="product_image">
+                                <img src="${linkImage}" alt="">
+                            </div>
+                            <div class="favorite favorite_left"></div>
+                            <div class="product_bubble product_bubble_right product_bubble_red d-flex flex-column align-items-center"><span>-20</span></div>
+                            <div class="product_info">
+                                <h6 class="product_name"><a href=""> ${val.TenSanPham} </a></h6>
+                                <div class="product_price">${val.GiaNhap}</div>
+                            </div>
+                        </div>
+                        <div class="red_button add_to_cart_button"><a href="/SanPhams/Create">Thêm Sản Phẩm Mới</a></div>
+                    </div>`;
+                });
+                $('#displayProduct').html(str);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log('AJAX Error:', textStatus, errorThrown);
+
+                // Chi tiết lỗi từ đối tượng jqXHR
+                console.log('Status Code:', jqXHR.status);
+                console.log('Response Text:', jqXHR.responseText);
+            }
+        })
+    });
+</script>
